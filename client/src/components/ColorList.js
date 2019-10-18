@@ -6,7 +6,7 @@ const initialColor = {
   code: { hex: "" }
 };
 
-const ColorList = ({ colors, updateColors }) => {
+const ColorList = ({ props, id, colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
@@ -21,6 +21,13 @@ const ColorList = ({ colors, updateColors }) => {
     // Make a put request to save your updated color
     // think about where will you get the id from...
     // where is is saved right now?
+    axios
+      .put(`http://localhost:5000/api/colors/${id}`)
+      .then(res => {
+        updateColors(res.data);
+        props.history.push('/bubbles')
+      })
+      .catch(err => console.log('Did not save to color list', err))
   };
 
   const deleteColor = color => {
