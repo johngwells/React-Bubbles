@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { axiosWithAuth } from "./utils/axiosWithAuth";
 
 const initialColor = {
@@ -7,10 +6,16 @@ const initialColor = {
   code: { hex: "" }
 };
 
-const ColorList = ({ colors, updateColors }) => {
+const ColorList = ({ colors, updateColors, location, ...props }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+
+  /*
+  const item = colors.find(
+    color => `${color.id}` === props.match.params.id
+  );
+  */
 
   const editColor = color => {
     setEditing(true);
@@ -19,29 +24,57 @@ const ColorList = ({ colors, updateColors }) => {
 
   const saveEdit = e => {
     e.preventDefault();
-    // Make a put request to save your updated color
-    // think about where will you get the id from...
-    // where is is saved right now?
     axiosWithAuth()
       .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
       .then(res => {
         updateColors(colors.map(color => 
           color.id === colorToEdit.id ? res.data : color
           ));
+          setEditing(false);
       })
-      .catch(err => console.log('Did not save to color list', err))
+      .catch(err => console.log('Did not save to color list', err));
+      setColorToEdit({
+        color: '',
+        code: {hex: ''}
+      });
   };
+
+  /*
+  const deleteColorHandler = id => {
+    return colors.filter(color => color.id !== id)
+  } 
+  */
 
   const deleteColor = color => {
     // make a delete request to delete this color
+    axiosWithAuth()
+      .delete(`/api/colors/${color.id}`)
+      .then(res => {
+        renderColors()
+        // props.history.push('/bubbles')
+      })
+      .catch(err => {
+        console.log('delete', err)
+      });
   };
+
+  const renderColors = () => {
+    // after delete
+    axiosWithAuth()
+      .get('/api/colors')
+      .then(res => {
+        updateColors(res.data)
+        setEditing(false)
+      })
+      .catch(err => console.log(err))
+  }
 
   return (
     <div className="colors-wrap">
       <p>colors</p>
       <ul>
         {colors.map(color => (
-          <li key={color.id} onClick={() => editColor(color)}>
+          <li key={color.color} onClick={() => editColor(color)}>
             <span>
               <span className="delete" onClick={() => deleteColor(color)}>
                 x
