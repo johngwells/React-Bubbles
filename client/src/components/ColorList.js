@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { axiosWithAuth } from "./utils/axiosWithAuth";
 
 const initialColor = {
   color: "",
   code: { hex: "" }
 };
 
-const ColorList = ({ props, id, colors, updateColors }) => {
+const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
@@ -21,11 +22,12 @@ const ColorList = ({ props, id, colors, updateColors }) => {
     // Make a put request to save your updated color
     // think about where will you get the id from...
     // where is is saved right now?
-    axios
-      .put(`http://localhost:5000/api/colors/${id}`)
+    axiosWithAuth()
+      .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
       .then(res => {
-        updateColors(res.data);
-        props.history.push('/bubbles')
+        updateColors(colors.map(color => 
+          color.id === colorToEdit.id ? res.data : color
+          ));
       })
       .catch(err => console.log('Did not save to color list', err))
   };
@@ -39,7 +41,7 @@ const ColorList = ({ props, id, colors, updateColors }) => {
       <p>colors</p>
       <ul>
         {colors.map(color => (
-          <li key={color.color} onClick={() => editColor(color)}>
+          <li key={color.id} onClick={() => editColor(color)}>
             <span>
               <span className="delete" onClick={() => deleteColor(color)}>
                 x
