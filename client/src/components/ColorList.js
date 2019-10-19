@@ -37,27 +37,21 @@ const ColorList = ({ colors, updateColors, location, ...props }) => {
         color: '',
         code: {hex: ''}
       });
-  };
-
-  /*
-  const deleteColorHandler = id => {
-    return colors.filter(color => color.id !== id)
-  } 
-  */
+  };  
 
   const deleteColor = color => {
     // make a delete request to delete this color
     axiosWithAuth()
       .delete(`/api/colors/${color.id}`)
       .then(res => {
-        renderColors()
-        // props.history.push('/bubbles')
+        updateColors([...colors.filter(c => c.id !== color.id)])
       })
       .catch(err => {
         console.log('delete', err)
       });
   };
 
+  /*
   const renderColors = () => {
     // after delete
     axiosWithAuth()
@@ -68,6 +62,7 @@ const ColorList = ({ colors, updateColors, location, ...props }) => {
       })
       .catch(err => console.log(err))
   }
+  */
 
   return (
     <div className="colors-wrap">
